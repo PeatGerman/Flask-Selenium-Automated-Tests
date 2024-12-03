@@ -27,7 +27,6 @@ class TestLogin(unittest.TestCase):
         login_page = LoginPage(self.driver)
         login_page.load()
         login_page.login(config.VALID_ADMIN_USERNAME, config.VALID_ADMIN_PASSWORD)
-
         WebDriverWait(self.driver, 10).until(EC.url_changes(config.LOGIN_URL))
         current_url = self.driver.current_url
         login_page.logout()
@@ -38,7 +37,6 @@ class TestLogin(unittest.TestCase):
         login_page = LoginPage(self.driver)
         login_page.load()
         login_page.login(config.VALID_USER_USERNAME, config.VALID_USER_PASSWORD)
-
         WebDriverWait(self.driver, 10).until(EC.url_changes(config.LOGIN_URL))
         current_url = self.driver.current_url
         login_page.logout()
@@ -62,6 +60,5 @@ class TestLogin(unittest.TestCase):
         self.assertEqual(error_message, expected_message)
 
     def test_empty_password(self):
-
         login_page = LoginPage(self.driver)
 

@@ -4,37 +4,94 @@
     <meta charset="UTF-8">
     <title>ICPay Test Runner - Testauswahl</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Tailwind CSS über CDN -->
+    <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hidden-category {
+            display: none;
+        }
+    </style>
 </head>
 <body class="bg-white">
-    <div class="flex justify-center items-center h-screen">
-        <div class="w-full max-w-md px-6">
+    <div class="flex justify-center items-center py-10">
+        <div class="w-full max-w-lg px-6">
             <div class="flex flex-col items-center">
                 <div class="flex items-center justify-center gap-x-2">
-
                     <h2 class="text-5xl text-gray-700">ICPay</h2>
                 </div>
                 <p class="mt-5 text-center text-gray-500">Test Runner</p>
-                <div class="mt-8 w-full">
-                    <form method="post">
-                        <div class="space-y-4">
-                            {% for test in test_methods %}
-                                <div class="flex items-center">
-                                    <input id="{{ test }}" type="checkbox" name="tests" value="{{ test }}" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                    <label for="{{ test }}" class="ml-2 block text-sm text-gray-700">{{ test }}</label>
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <div class="mt-6">
-                            <button type="submit" class="w-full py-2 font-bold text-white bg-gray-800 rounded-md hover:bg-black active:bg-black">
-                                Tests ausführen
-                            </button>
-                        </div>
-                    </form>
+
+                <!-- Search field -->
+                <input
+                    id="search-bar"
+                    type="text"
+                    placeholder="Search tests..."
+                    class="mb-6 px-4 py-2 border border-gray-300 rounded-md w-full"
+                    oninput="filterTests()"
+                >
+
+                <!-- Check All / Uncheck All -->
+                <div class="flex space-x-4 mb-6">
+                    <button onclick="checkAllTests(true)" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Select All</button>
+                    <button onclick="checkAllTests(false)" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">Deselect All</button>
                 </div>
+
+                <!-- Categorized tests -->
+                <form method="post">
+                    <div id="test-categories" class="space-y-4 w-full">
+                        <div class="category">
+                            <h2 class="font-bold text-xl text-gray-800 cursor-pointer" onclick="toggleCategory('category-tests')">Tests</h2>
+                            <div id="category-tests" class="space-y-2">
+                                {% for test in test_methods %}
+                                <div class="flex items-center">
+                                    <input id="{{ test }}" type="checkbox" name="tests" value="{{ test }}" class="h-4 w-4">
+                                    <label for="{{ test }}" class="ml-2">{{ test }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <button type="submit" class="w-full py-2 font-bold text-white bg-gray-800 rounded-md hover:bg-black active:bg-black">
+                            Run Tests
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+
+    <script>
+        function filterTests() {
+            const query = document.getElementById('search-bar').value.toLowerCase();
+            const categories = document.querySelectorAll('.category');
+            categories.forEach(category => {
+                const tests = category.querySelectorAll('label');
+                let hasVisibleTests = false;
+
+                tests.forEach(test => {
+                    if (test.innerText.toLowerCase().includes(query)) {
+                        test.parentElement.style.display = 'flex';
+                        hasVisibleTests = true;
+                    } else {
+                        test.parentElement.style.display = 'none';
+                    }
+                });
+
+                category.style.display = hasVisibleTests ? 'block' : 'none';
+            });
+        }
+
+        function checkAllTests(checked) {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = checked);
+        }
+
+        function toggleCategory(categoryId) {
+            const category = document.getElementById(categoryId);
+            category.classList.toggle('hidden-category');
+        }
+    </script>
 </body>
 </html>
