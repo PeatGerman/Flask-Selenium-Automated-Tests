@@ -4,6 +4,8 @@ from selenium.webdriver.edge.service import Service as EdgeService
 from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import time
+from pages.dashboard_page import DashboardPage
 from pages.login_page import LoginPage
 import config
 
@@ -22,4 +24,6 @@ class TestDashboard(unittest.TestCase):
         cls.driver.quit()
 
     def test_send_money_button(self):
-        pass
+        dashboard_page = DashboardPage(self.driver)
+        dashboard_page.load()
+        time.sleep(10)
