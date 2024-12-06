@@ -2,66 +2,76 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>ICPay Test Runner - Testauswahl</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Tailwind CSS via CDN -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testauswahl - ICPay Test Runner</title>
+    <!-- Tailwind CSS über CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .hidden-category {
-            display: none;
-        }
-    </style>
 </head>
-<body class="bg-white">
-    <div class="flex justify-center items-center py-10">
-        <div class="w-full max-w-lg px-6">
-            <div class="flex flex-col items-center">
-                <div class="flex items-center justify-center gap-x-2">
-                    <h2 class="text-5xl text-gray-700">ICPay</h2>
-                </div>
-                <p class="mt-5 text-center text-gray-500">Test Runner</p>
-
-                <!-- Search field -->
-                <input
-                    id="search-bar"
-                    type="text"
-                    placeholder="Search tests..."
-                    class="mb-6 px-4 py-2 border border-gray-300 rounded-md w-full"
-                    oninput="filterTests()"
-                >
-
-                <!-- Check All / Uncheck All -->
-                <div class="flex space-x-4 mb-6">
-                    <button onclick="checkAllTests(true)" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Select All</button>
-                    <button onclick="checkAllTests(false)" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">Deselect All</button>
-                </div>
-
-                <!-- Categorized tests -->
-                <form method="post">
-                    <div id="test-categories" class="space-y-4 w-full">
-                        <div class="category">
-                            <h2 class="font-bold text-xl text-gray-800 cursor-pointer" onclick="toggleCategory('category-tests')">Tests</h2>
-                            <div id="category-tests" class="space-y-2">
-                                {% for test in test_methods %}
-                                <div class="flex items-center">
-                                    <input id="{{ test }}" type="checkbox" name="tests" value="{{ test }}" class="h-4 w-4">
-                                    <label for="{{ test }}" class="ml-2">{{ test }}</label>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-6">
-                        <button type="submit" class="w-full py-2 font-bold text-white bg-gray-800 rounded-md hover:bg-black active:bg-black">
-                            Run Tests
-                        </button>
-                    </div>
-                </form>
-            </div>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Header -->
+    <header class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto text-center">
+            <h1 class="text-4xl font-bold">ICPay Test Runner</h1>
+            <p class="text-gray-300 mt-2">Wähle die Tests aus, die du ausführen möchtest</p>
         </div>
-    </div>
+    </header>
 
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-10">
+        <!-- Suchfeld -->
+        <div class="flex justify-center mb-8">
+            <input
+                id="search-bar"
+                type="text"
+                placeholder="Suche nach Tests..."
+                class="w-full max-w-2xl px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                oninput="filterTests()"
+            >
+        </div>
+
+        <!-- Check All / Uncheck All -->
+        <div class="flex justify-center space-x-4 mb-8">
+            <button onclick="checkAllTests(true)" class="bg-blue-600 text-white py-2 px-6 rounded-md shadow hover:bg-blue-700">
+                Alle auswählen
+            </button>
+            <button onclick="checkAllTests(false)" class="bg-gray-600 text-white py-2 px-6 rounded-md shadow hover:bg-gray-700">
+                Auswahl aufheben
+            </button>
+        </div>
+
+        <!-- Test Kategorien -->
+        <form method="POST" class="space-y-6">
+            {% for file, tests in test_methods.items() %}
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4 cursor-pointer" onclick="toggleCategory('{{ file }}')">
+                    {{ file }}
+                </h2>
+                <div id="{{ file }}" class="space-y-2">
+                    {% for test in tests %}
+                    <div class="flex items-center">
+                        <input id="{{ test }}" type="checkbox" name="tests" value="{{ test }}" class="h-4 w-4 text-blue-600 focus:ring-blue-500 rounded">
+                        <label for="{{ test }}" class="ml-3 text-gray-600">{{ test.split('.')[-1] }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Submit Button -->
+            <div class="flex justify-center mt-8">
+                <button
+                    type="submit"
+                    class="bg-green-600 text-white py-3 px-12 rounded-lg shadow-lg hover:bg-green-700"
+                >
+                    Tests ausführen
+                </button>
+            </div>
+        </form>
+    </main>
+
+
+
+    <!-- JavaScript -->
     <script>
         function filterTests() {
             const query = document.getElementById('search-bar').value.toLowerCase();
@@ -90,7 +100,7 @@
 
         function toggleCategory(categoryId) {
             const category = document.getElementById(categoryId);
-            category.classList.toggle('hidden-category');
+            category.classList.toggle('hidden');
         }
     </script>
 </body>
