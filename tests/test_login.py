@@ -7,7 +7,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from pages.login_page import LoginPage
 import config
 
-
 class TestLogin(unittest.TestCase):
 
     @classmethod
@@ -25,22 +24,18 @@ class TestLogin(unittest.TestCase):
 
     def test_valid_admin_login(self):
         login_page = LoginPage(self.driver)
-        login_page.load()
-        login_page.login(config.VALID_ADMIN_USERNAME, config.VALID_ADMIN_PASSWORD)
+        login_page.admin_login()
         WebDriverWait(self.driver, 10).until(EC.url_changes(config.LOGIN_URL))
         current_url = self.driver.current_url
         login_page.logout()
-
         self.assertIn('src/admin/', current_url, "Die URL sollte 'src/admin/' enthalten.")
 
     def test_valid_user_login(self):
         login_page = LoginPage(self.driver)
-        login_page.load()
-        login_page.login(config.VALID_USER_USERNAME, config.VALID_USER_PASSWORD)
+        login_page.user_login()
         WebDriverWait(self.driver, 10).until(EC.url_changes(config.LOGIN_URL))
         current_url = self.driver.current_url
         login_page.logout()
-
         self.assertIn('src/user/', current_url, "Die URL sollte 'src/user/' enthalten.")
 
     def test_empty_username_and_password(self):
@@ -61,4 +56,8 @@ class TestLogin(unittest.TestCase):
 
     def test_empty_password(self):
         login_page = LoginPage(self.driver)
-
+        login_page.load()
+        login_page.login(config.VALID_USER_USERNAME, "")
+        error_message = login_page.get_error_message()
+        expected_message = config.ERROR_MESSAGES["empty_username_password"]
+        self.assertEqual(error_message, expected_message)
