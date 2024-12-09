@@ -13,4 +13,4 @@ class LoginPage(BasePage):
         self.driver.get(self.URL)
 
     def get_error_message(self):
-        return self.wait_for_element(self.error_message).text
+        return super().get_error_message(self.error_message)

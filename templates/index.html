@@ -6,6 +6,51 @@
     <title>Testauswahl - ICPay Test Runner</title>
     <!-- Tailwind CSS über CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animation für das Ein-/Ausklappen */
+        .collapsible {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.4s ease, padding 0.4s ease;
+        }
+        .collapsible.expanded {
+            max-height: 1000px; /* Ein hoher Wert, um sicherzustellen, dass alle Inhalte sichtbar sind */
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        /* Animation für den Pfeil */
+        .arrow {
+            transition: transform 0.3s ease;
+        }
+        .arrow.down {
+            transform: rotate(90deg);
+        }
+        .arrow.up {
+            transform: rotate(-90deg);
+        }
+
+        /* Sticky Footer */
+        #sticky-footer {
+            position: sticky;
+            bottom: 0;
+            background: #f8f9fa;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            border-top: 1px solid #dee2e6;
+        }
+        #sticky-footer .container {
+            display: flex;
+            justify-content: center;
+            padding: 1rem 0;
+            gap: 1rem;
+        }
+        #sticky-footer button {
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        #sticky-footer button:hover {
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
     <!-- Header -->
@@ -29,13 +74,14 @@
             >
         </div>
 
-        <!-- Check All / Uncheck All -->
+        <!-- Check All / Uncheck All / Expand All -->
         <div class="flex justify-center space-x-4 mb-8">
-            <button onclick="checkAllTests(true)" class="bg-blue-600 text-white py-2 px-6 rounded-md shadow hover:bg-blue-700">
-                Alle auswählen
+
+            <button onclick="expandAllCategories(true)" class="bg-indigo-600 text-white py-2 px-6 rounded-md shadow hover:bg-indigo-700">
+                Alle aufklappen
             </button>
-            <button onclick="checkAllTests(false)" class="bg-gray-600 text-white py-2 px-6 rounded-md shadow hover:bg-gray-700">
-                Auswahl aufheben
+            <button onclick="expandAllCategories(false)" class="bg-red-600 text-white py-2 px-6 rounded-md shadow hover:bg-red-700">
+                Alle zuklappen
             </button>
         </div>
 
@@ -43,13 +89,22 @@
         <form method="POST" class="space-y-6">
             {% for file, tests in test_methods.items() %}
             <div class="bg-white shadow rounded-lg p-6">
-                <h2 class="text-2xl font-semibold text-gray-700 mb-4 cursor-pointer" onclick="toggleCategory('{{ file }}')">
-                    {{ file }}
-                </h2>
-                <div id="{{ file }}" class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-semibold text-gray-700 mb-4 cursor-pointer flex items-center" onclick="toggleCategory('{{ file }}')">
+                        <span>{{ file }}</span>
+                        <svg class="arrow ml-2 w-5 h-5 transition-transform up" id="arrow-{{ file }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </h2>
+                    <button type="button" class="text-sm text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-md"
+                            onclick="checkCategoryTests('{{ file }}')">
+                        Alle auswählen
+                    </button>
+                </div>
+                <div id="{{ file }}" class="collapsible expanded space-y-2">
                     {% for test in tests %}
                     <div class="flex items-center">
-                        <input id="{{ test }}" type="checkbox" name="tests" value="{{ test }}" class="h-4 w-4 text-blue-600 focus:ring-blue-500 rounded">
+                        <input id="{{ test }}" type="checkbox" name="tests" value="{{ test }}" class="h-4 w-4 text-blue-600 focus:ring-blue-500 rounded category-{{ file }}">
                         <label for="{{ test }}" class="ml-3 text-gray-600">{{ test.split('.')[-1] }}</label>
                     </div>
                     {% endfor %}
@@ -57,25 +112,58 @@
             </div>
             {% endfor %}
 
-            <!-- Submit Button -->
-            <div class="flex justify-center mt-8">
-                <button
-                    type="submit"
-                    class="bg-green-600 text-white py-3 px-12 rounded-lg shadow-lg hover:bg-green-700"
-                >
-                    Tests ausführen
-                </button>
+            <!-- Sticky Footer -->
+            <div id="sticky-footer">
+                <div class="container">
+                    <button
+                        type="submit"
+                        id="run-tests-button"
+                        class="bg-green-600 text-white py-3 px-12 rounded-lg shadow-lg hover:bg-green-700"
+                    >
+                        Tests ausführen
+                    </button>
+                    <button
+                        type="button"
+                        onclick="checkAllTests(true)"
+                        class="bg-blue-600 text-white py-3 px-12 rounded-lg shadow-lg hover:bg-blue-700"
+                    >
+                        Alle auswählen
+                    </button>
+                    <button
+                        type="button"
+                        onclick="checkAllTests(false)"
+                        class="bg-gray-600 text-white py-3 px-12 rounded-lg shadow-lg hover:bg-gray-700"
+                    >
+                        Auswahl aufheben
+                    </button>
+                </div>
             </div>
         </form>
     </main>
 
-
-
     <!-- JavaScript -->
     <script>
+        function checkAllTests(checked) {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = checked;
+            });
+        }
+
+        function checkCategoryTests(categoryId) {
+            const checkboxes = document.querySelectorAll(`.category-${CSS.escape(categoryId)}`);
+            if (checkboxes.length === 0) {
+                console.error(`Keine Checkboxes für die Kategorie ${categoryId} gefunden.`);
+            } else {
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+            }
+        }
+
         function filterTests() {
             const query = document.getElementById('search-bar').value.toLowerCase();
-            const categories = document.querySelectorAll('.category');
+            const categories = document.querySelectorAll('form > div');
             categories.forEach(category => {
                 const tests = category.querySelectorAll('label');
                 let hasVisibleTests = false;
@@ -93,14 +181,36 @@
             });
         }
 
-        function checkAllTests(checked) {
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(checkbox => checkbox.checked = checked);
-        }
-
         function toggleCategory(categoryId) {
             const category = document.getElementById(categoryId);
-            category.classList.toggle('hidden');
+            const arrow = document.getElementById(`arrow-${categoryId}`);
+            if (category) {
+                const isExpanded = category.classList.toggle('expanded');
+                if (isExpanded) {
+                    arrow.classList.add('up');
+                    arrow.classList.remove('down');
+                } else {
+                    arrow.classList.add('down');
+                    arrow.classList.remove('up');
+                }
+            }
+        }
+
+        function expandAllCategories(expand) {
+            const categories = document.querySelectorAll('.collapsible');
+            categories.forEach(category => {
+                const arrowId = `arrow-${category.id}`;
+                const arrow = document.getElementById(arrowId);
+                if (expand) {
+                    category.classList.add('expanded');
+                    arrow.classList.add('up');
+                    arrow.classList.remove('down');
+                } else {
+                    category.classList.remove('expanded');
+                    arrow.classList.add('down');
+                    arrow.classList.remove('up');
+                }
+            });
         }
     </script>
 </body>

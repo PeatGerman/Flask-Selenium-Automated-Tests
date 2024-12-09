@@ -49,3 +49,7 @@ class BasePage:
 
     def logout(self):
         self.wait_and_click(self.logout_button)
+
+    def get_error_message(self, locator: tuple, timeout=10) -> str:
+        element = self.wait_for_element(locator, timeout)
+        return element.text
