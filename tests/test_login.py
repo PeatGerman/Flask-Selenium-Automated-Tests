@@ -1,3 +1,4 @@
+import time
 import unittest
 from selenium import webdriver
 from selenium.webdriver.edge.service import Service as EdgeService
@@ -60,4 +61,12 @@ class TestLogin(unittest.TestCase):
         login_page.login(config.VALID_USER_USERNAME, "")
         error_message = login_page.get_error_message()
         expected_message = config.ERROR_MESSAGES["empty_username_password"]
+        self.assertEqual(error_message, expected_message)
+
+    def test_invalid_credentials(self):
+        login_page = LoginPage(self.driver)
+        login_page.load()
+        login_page.login("frong_username", "frong_pw")
+        error_message = login_page.get_error_message()
+        expected_message = config.ERROR_MESSAGES["invalid_credentials"]
         self.assertEqual(error_message, expected_message)
