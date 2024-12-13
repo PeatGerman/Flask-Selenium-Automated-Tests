@@ -1,5 +1,8 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from pages.base_page import BasePage
+
 import config
 
 class LoginPage(BasePage):
@@ -12,5 +15,8 @@ class LoginPage(BasePage):
     def load(self):
         self.driver.get(self.URL)
 
-    def get_error_message(self):
-        return super().get_error_message(self.error_message)
+    def get_error_message(self, timeout=10):
+        element = WebDriverWait(self.driver, timeout).until(
+            EC.visibility_of_element_located(self.error_message)
+        )
+        return element.text
